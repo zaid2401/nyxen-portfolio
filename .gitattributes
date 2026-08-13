@@ -1,0 +1,15 @@
+# Normalise line endings. The repo stores LF; Windows checkouts get CRLF where
+# the platform wants it. Without this, a Windows commit and a Linux CI build
+# disagree about every line of every file.
+* text=auto eol=lf
+
+# Never touch binaries.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary
