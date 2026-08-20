@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { siteConfig, githubUrl, isPlaceholder, sections } from "@/config/site";
 import { identityRows, work, education } from "@/data/experience";
 import { skills, skillCategories } from "@/data/skills";
+import { caseFiles } from "@/data/case-files";
+import { labTools } from "@/data/lab";
 import { scrollToSection } from "@/lib/navigation";
 import { formatPeriodRange, isPresent, roleDuration } from "@/lib/duration";
 
@@ -18,6 +20,10 @@ export interface CommandContext {
   clear: () => void;
   /** Konami-adjacent: `sudo` three times unlocks the dev read-out. */
   unlockDevMode: () => void;
+  /** Opens the hidden archive — reached via `sudo nyxen --secret`. */
+  openArchive: () => void;
+  /** Client-side route navigation, supplied by the Terminal component. */
+  navigate: (href: string) => void;
 }
 
 interface Command {
@@ -132,13 +138,92 @@ export const commands: Command[] = [
   },
   {
     name: "projects",
-    summary: "Jump to the live GitHub project feed",
+    summary: "List the case files",
     run: (_args, ctx) => {
       ctx.print([
-        text("Projects are pulled live from the GitHub API."),
-        muted("Navigating to the Projects section…"),
+        accent("Case files"),
+        blank(),
+        ...caseFiles.map((item) =>
+          row(
+            `#${item.index}`,
+            <>
+              <span className="text-fg">{item.name}</span>
+              <span className="text-dim"> — {item.summary}</span>
+            </>,
+          ),
+        ),
+        blank(),
+        muted("Full write-ups: type `open case-files`"),
       ]);
-      scrollToSection("projects");
+      scrollToSection("case-files");
+    },
+  },
+  {
+    name: "lab",
+    summary: "Working data tools",
+    run: (_args, ctx) => {
+      ctx.print([
+        accent("Nyxen Lab"),
+        blank(),
+        ...labTools.map((item) => row(item.id, item.summary)),
+        blank(),
+        muted(
+          "Real tools — they run on data you paste, in your browser. Navigating to Lab…",
+        ),
+      ]);
+      scrollToSection("lab");
+    },
+  },
+  {
+    name: "status",
+    summary: "System status read-out",
+    run: (_args, ctx) => {
+      ctx.print([
+        accent("Nyxen system"),
+        blank(),
+        row("portfolio", <span className="text-accent">● online</span>),
+        row(
+          "github",
+          <span className="text-muted">
+            live via API — see the GitHub section for the current check
+          </span>,
+        ),
+        blank(),
+        muted(
+          "This command reports what the shell knows. The System Status panel in the GitHub section runs the real checks.",
+        ),
+      ]);
+      scrollToSection("github");
+    },
+  },
+  {
+    name: "recruiter",
+    summary: "Open the recruiter view",
+    run: (_args, ctx) => {
+      ctx.print([
+        text("Opening recruiter mode — the one-page hiring summary."),
+      ]);
+      ctx.navigate("/recruiter");
+    },
+  },
+  {
+    name: "resume",
+    summary: "Download the CV",
+    run: (_args, ctx) => {
+      if (siteConfig.resumeUrl) {
+        ctx.print([
+          text(
+            <TermLink href={siteConfig.resumeUrl}>Download the CV</TermLink>,
+          ),
+        ]);
+        return;
+      }
+      ctx.print([
+        error("No CV file is configured on this deployment."),
+        muted(
+          `Available on request — email ${siteConfig.email}. Recruiter mode has the same information on one page.`,
+        ),
+      ]);
     },
   },
   {
@@ -304,6 +389,19 @@ export const commands: Command[] = [
     summary: "Elevate privileges",
     hidden: true,
     run: (args, ctx) => {
+      // The documented incantation: `sudo nyxen --secret`.
+      if (
+        args[0]?.toLowerCase() === "nyxen" &&
+        args.slice(1).some((arg) => /^--?secret$/i.test(arg))
+      ) {
+        ctx.print([
+          accent("ACCESS GRANTED"),
+          muted("Opening the hidden archive…"),
+        ]);
+        ctx.openArchive();
+        return;
+      }
+
       sudoCount += 1;
       if (sudoCount >= 3) {
         sudoCount = 0;

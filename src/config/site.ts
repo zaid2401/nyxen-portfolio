@@ -20,8 +20,10 @@ export type SectionId =
   | "hero"
   | "about"
   | "experience"
-  | "projects"
+  | "case-files"
   | "skills"
+  | "lab"
+  | "github"
   | "terminal"
   | "contact";
 
@@ -30,7 +32,7 @@ export const siteConfig = {
   brand: "Nyxen",
   name: "Zaid",
   /** Shown in <title> and OG cards. */
-  title: "The Nyxens Archive",
+  title: "Nyxen — Zaid Parkar",
   role: "Software Developer & Automation Developer",
   roles: [
     "Software Developer",
@@ -39,12 +41,22 @@ export const siteConfig = {
   ],
   tagline:
     "I design automation systems, developer tooling and data pipelines that remove manual work from the day.",
-  description: `Portfolio of Zaid, aka Nyxen — 
-    Software developer and automation developer building automation systems, 
-    developer tools and data-driven solutions with Python, UiPath, SQL and AWS.
-    Exploring the world of data engineering, building pipelines, working with data, 
-    and turning complex problems into practical solutions.
-    This is where i share what i build, learn and discover along the way.`,
+  /**
+   * Feeds the meta description, Open Graph, Twitter cards and the Person
+   * JSON-LD.
+   *
+   * Written as concatenated single lines rather than a template literal on
+   * purpose: a template literal keeps its newlines and indentation, and those
+   * end up inside the <meta> tag verbatim, so search results and link previews
+   * render the source formatting. Keep it one continuous string.
+   */
+  description:
+    "Portfolio of Zaid, aka Nyxen — Software developer and automation " +
+    "developer building automation systems, developer tools and data-driven " +
+    "solutions with Python, UiPath and SQL. Exploring the world of data " +
+    "engineering, building pipelines, working with data, and turning complex " +
+    "problems into practical solutions. This is where I share what I build, " +
+    "learn and discover along the way.",
 
   /* ── Deployment ─────────────────────────────────────────────────────────── */
   domain: "nyxen.website",
@@ -77,19 +89,29 @@ export const siteConfig = {
   /* ── Contact & socials ──────────────────────────────────────────────────── */
   email: "contact.zaidparkar@gmail.com",
   linkedin: "https://www.linkedin.com/in/zaid-parkar-b67a5a271",
-  /** Optional. Leave empty to hide the resume action everywhere. */
+
+  /* ── Résumé ─────────────────────────────────────────────────────────────
+   * CONFIGURATION POINT. Drop a PDF into `/public` and set the path here —
+   * for example "/zaid-parkar-cv.pdf" — or point this at an external URL.
+   *
+   * While it is empty, every "Download CV" control on the site renders in a
+   * clearly-labelled unavailable state rather than linking to a 404. Nothing
+   * fabricates résumé content in its place.
+   */
   resumeUrl: "",
 
   /* ── Meta ───────────────────────────────────────────────────────────────── */
   keywords: [
     "Software developer",
     "Automation developer",
+    "RPA developer",
     "UiPath",
     "Python automation",
     "Data engineering",
+    "SQL",
     "portfolio",
     "Nyxen",
-    "Zaid",
+    "Zaid Parkar",
   ],
 } as const;
 
@@ -103,19 +125,39 @@ export function isPlaceholder(value: string | null | undefined): boolean {
 /** GitHub profile URL derived from the username — never hardcode this. */
 export const githubUrl = `https://github.com/${siteConfig.githubUsername}`;
 
-/** Navigation model. `nav: false` keeps a section out of the top bar. */
+/**
+ * Navigation model — the one place the OS shell, the mobile dock, the command
+ * palette and the terminal's `open` command all read from.
+ *
+ * `nav` puts a section in the top toolbar. `dock` puts it in the mobile bottom
+ * bar, which holds fewer items because a thumb reach is not a mouse: the four
+ * that answer "what has he built and can he do it" win the space, and
+ * everything else stays one tap away in the menu.
+ */
 export const sections: {
   id: SectionId;
   label: string;
+  /** Short form for the mobile dock and narrow toolbars. */
+  short?: string;
   nav: boolean;
+  dock?: boolean;
 }[] = [
-  { id: "hero", label: "Home", nav: false },
+  { id: "hero", label: "Home", nav: false, dock: true },
   { id: "about", label: "About", nav: true },
-  { id: "experience", label: "Experience", nav: true },
-  { id: "projects", label: "Projects", nav: true },
-  { id: "skills", label: "Skills", nav: true },
+  { id: "experience", label: "Experience", short: "Exp", nav: true },
+  {
+    id: "case-files",
+    label: "Case Files",
+    short: "Cases",
+    nav: true,
+    dock: true,
+  },
+  { id: "skills", label: "Skill DNA", short: "Skills", nav: true, dock: true },
+  { id: "lab", label: "Lab", nav: true, dock: true },
+  { id: "github", label: "GitHub", nav: true },
   { id: "terminal", label: "Terminal", nav: false },
   { id: "contact", label: "Contact", nav: true },
 ];
 
 export const navSections = sections.filter((s) => s.nav);
+export const dockSections = sections.filter((s) => s.dock);

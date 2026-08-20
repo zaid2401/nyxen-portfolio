@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Section } from "@/components/ui/section";
 import { useSystem } from "@/components/system/system-provider";
 import { siteConfig } from "@/config/site";
@@ -35,7 +36,8 @@ const GREETING: Omit<Line, "id">[] = [
  * the on-screen keyboard.
  */
 export function Terminal() {
-  const { toggleDevMode, devMode } = useSystem();
+  const { toggleDevMode, devMode, setArchiveOpen } = useSystem();
+  const router = useRouter();
   const [lines, setLines] = useState<Line[]>(() =>
     GREETING.map((line, id) => ({ ...line, id })),
   );
@@ -74,7 +76,13 @@ export function Terminal() {
     if (entry) {
       setHistory((h) => [...h, entry]);
       setHistoryIndex(-1);
-      runCommand(entry, { print, clear, unlockDevMode });
+      runCommand(entry, {
+        print,
+        clear,
+        unlockDevMode,
+        openArchive: () => setArchiveOpen(true),
+        navigate: (href) => router.push(href),
+      });
     }
   }
 
@@ -136,9 +144,9 @@ export function Terminal() {
   return (
     <Section
       id="terminal"
-      index="05"
+      index="07"
       title="Shell"
-      kicker="Everything above, reachable by keyboard. The commands are real — they read the same data the page does."
+      kicker="Everything above, reachable by keyboard. The commands are real — they run locally and read the same data the page renders from."
     >
       <div
         className="border-line bg-void corner-ticks relative border"

@@ -35,8 +35,8 @@ export function Experience() {
     <Section
       id="experience"
       index="02"
-      title="Experience"
-      kicker="Where I've worked and what I studied."
+      title="System Log"
+      kicker="The career as a log: what ran, when, and what it changed. Work and study are kept as separate streams — they answer different questions."
     >
       <div className="space-y-16 sm:space-y-20">
         <Block
@@ -69,9 +69,9 @@ export function Experience() {
                     {current && <Chip tone="accent">Current</Chip>}
                   </div>
 
-                  <h4 className="mt-3 text-lg font-semibold tracking-tight sm:text-xl">
+                  <h3 className="mt-3 text-lg font-semibold tracking-tight sm:text-xl">
                     {entry.role}
-                  </h4>
+                  </h3>
 
                   <p className="text-accent mt-1 font-mono text-[0.8125rem]">
                     <Placeholderable value={entry.company} />
@@ -130,9 +130,9 @@ export function Experience() {
                     {current && <Chip tone="iris">In progress</Chip>}
                   </div>
 
-                  <h4 className="mt-3 text-lg font-semibold tracking-tight sm:text-xl">
+                  <h3 className="mt-3 text-lg font-semibold tracking-tight sm:text-xl">
                     {entry.qualification}
-                  </h4>
+                  </h3>
 
                   <p className="text-iris mt-1 font-mono text-[0.8125rem]">
                     <Placeholderable value={entry.institution} />

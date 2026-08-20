@@ -28,11 +28,7 @@
  */
 
 export type SkillCategory =
-  | "language"
-  | "data"
-  | "automation"
-  | "tooling"
-  | "web";
+  "language" | "data" | "automation" | "tooling" | "web";
 
 export interface Skill {
   id: string;
@@ -149,6 +145,19 @@ export const skills: Skill[] = [
   },
 
   /* ── Automation ─────────────────────────────────────────────────────────── */
+  {
+    id: "apps-script",
+    label: "Apps Script",
+    category: "automation",
+    blurb:
+      "Google Apps Script for form-driven workflows — turning a Google Form into an approval process that routes itself between people over WhatsApp.",
+    related: ["uipath", "web"],
+    match: {
+      topics: ["google-apps-script", "apps-script", "gas", "google-sheets"],
+    },
+    position: { x: 0.55, y: 0.66 },
+  },
+
   {
     id: "uipath",
     label: "UiPath",

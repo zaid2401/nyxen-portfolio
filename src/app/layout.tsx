@@ -5,11 +5,6 @@ import {
   SystemProvider,
   systemBootstrapScript,
 } from "@/components/system/system-provider";
-import { BootSequence } from "@/components/boot/boot-sequence";
-import { NavBar } from "@/components/navigation/nav-bar";
-import { CommandPalette } from "@/components/navigation/command-palette";
-import { Cursor } from "@/components/system/cursor";
-import { DevHud } from "@/components/system/dev-hud";
 import "./globals.css";
 
 /* Two families, both self-hosted by next/font: no render-blocking request to
@@ -106,14 +101,10 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <SystemProvider>
-          <BootSequence />
-          <NavBar />
-          <main id="content">{children}</main>
-          <CommandPalette />
-          <Cursor />
-          <DevHud />
-        </SystemProvider>
+        {/* The provider wraps everything so both the OS shell and the trimmed
+            recruiter route share one motion/effects preference. The shell
+            itself lives in the (os) route group — see its layout. */}
+        <SystemProvider>{children}</SystemProvider>
       </body>
     </html>
   );

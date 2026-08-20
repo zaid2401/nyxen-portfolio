@@ -39,12 +39,26 @@ export function getBooted(): boolean {
   return document.documentElement.dataset.booted === "1";
 }
 
+/**
+ * Power state is deliberately NOT persisted.
+ *
+ * Every page load starts at the power screen, including a reload. That is the
+ * point of the metaphor — a machine you reboot comes back off — and it is the
+ * one piece of start-up state that should not be remembered. `booted` still
+ * persists for the session, so pressing power a second time goes straight
+ * through rather than replaying the whole boot animation.
+ */
+export function getPowered(): boolean {
+  return document.documentElement.dataset.powered === "1";
+}
+
 export function getEffects(): boolean {
   return document.documentElement.dataset.effects !== "off";
 }
 
-/** Server snapshots. The overlay renders, effects are on — then the client corrects. */
+/** Server snapshots. The overlays render, effects are on — then the client corrects. */
 export const getServerBooted = () => false;
+export const getServerPowered = () => false;
 export const getServerEffects = () => true;
 
 export function setBooted(value: boolean): void {
@@ -55,6 +69,12 @@ export function setBooted(value: boolean): void {
   } catch {
     // Private mode or storage disabled — the sequence simply replays.
   }
+  emit();
+}
+
+export function setPowered(value: boolean): void {
+  // Written to the DOM only. Nothing touches storage, so a reload resets it.
+  document.documentElement.dataset.powered = value ? "1" : "0";
   emit();
 }
 
@@ -75,6 +95,7 @@ export function setEffects(value: boolean): void {
  */
 export const systemBootstrapScript = `(function(){try{
 var r=document.documentElement;
+r.dataset.powered="0";
 r.dataset.booted=sessionStorage.getItem("${STORAGE_KEYS.booted}")==="1"?"1":"0";
 r.dataset.effects=localStorage.getItem("${STORAGE_KEYS.effects}")==="off"?"off":"on";
-}catch(e){var d=document.documentElement;d.dataset.booted="0";d.dataset.effects="on";}})();`;
+}catch(e){var d=document.documentElement;d.dataset.powered="0";d.dataset.booted="0";d.dataset.effects="on";}})();`;

@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Boxes } from "lucide-react";
 import { skills, skillEdges, skillById, skillCategories } from "@/data/skills";
+import { caseFilesForSkill } from "@/data/case-files";
 import type { Repo } from "@/lib/github-shared";
 import { reposForSkill } from "@/lib/github-shared";
 import { useIsCompact } from "@/hooks/use-media-query";
 import { useSystem } from "@/components/system/system-provider";
+import { scrollToSection } from "@/lib/navigation";
 import { cn, hashString } from "@/lib/utils";
 
 /**
@@ -37,6 +39,10 @@ export function Constellation({ repos }: { repos: Repo[] }) {
   const linkedRepos = useMemo(
     () => (active ? reposForSkill(repos, active.match).slice(0, 4) : []),
     [active, repos],
+  );
+  const linkedCases = useMemo(
+    () => (active ? caseFilesForSkill(active.id) : []),
+    [active],
   );
 
   function toggle(id: string) {
@@ -179,6 +185,30 @@ export function Constellation({ repos }: { repos: Repo[] }) {
             <p className="text-muted text-balance-pretty mt-3 max-w-2xl text-sm leading-relaxed">
               {active.blurb}
             </p>
+
+            <div className="mt-5">
+              <p className="label-key">Applied in</p>
+              {linkedCases.length > 0 ? (
+                <ul className="mt-2.5 flex flex-wrap gap-1.5">
+                  {linkedCases.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        onClick={() => scrollToSection("case-files")}
+                        className="border-accent-line/50 text-accent bg-accent/[0.05] hover:border-accent flex items-center gap-1.5 border px-2 py-1 font-mono text-[0.625rem] transition-colors"
+                      >
+                        <span className="text-accent/60">#{item.index}</span>
+                        {item.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-dim mt-2 font-mono text-xs italic">
+                  No documented case file uses this directly.
+                </p>
+              )}
+            </div>
 
             <div className="mt-5">
               <p className="label-key">Related repositories</p>

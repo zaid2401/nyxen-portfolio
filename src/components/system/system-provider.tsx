@@ -13,10 +13,13 @@ import { usePrefersReducedMotion } from "@/hooks/use-media-query";
 import {
   getBooted,
   getEffects,
+  getPowered,
   getServerBooted,
   getServerEffects,
+  getServerPowered,
   setBooted,
   setEffects,
+  setPowered,
   subscribe,
 } from "@/components/system/system-store";
 
@@ -30,6 +33,10 @@ import {
  */
 
 interface SystemState {
+  /** False until the visitor presses the power button. */
+  powered: boolean;
+  powerOn: () => void;
+
   booted: boolean;
   completeBoot: () => void;
   replayBoot: () => void;
@@ -47,25 +54,38 @@ interface SystemState {
 
   paletteOpen: boolean;
   setPaletteOpen: (open: boolean) => void;
+
+  /** Hidden archive, unlocked from the terminal. */
+  archiveOpen: boolean;
+  setArchiveOpen: (open: boolean) => void;
 }
 
 const SystemContext = createContext<SystemState | null>(null);
 
 export function SystemProvider({ children }: { children: ReactNode }) {
+  const powered = useSyncExternalStore(subscribe, getPowered, getServerPowered);
   const booted = useSyncExternalStore(subscribe, getBooted, getServerBooted);
   const effects = useSyncExternalStore(subscribe, getEffects, getServerEffects);
   const reducedMotion = usePrefersReducedMotion();
 
   const [devMode, setDevMode] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
 
+  const powerOn = useCallback(() => setPowered(true), []);
   const completeBoot = useCallback(() => setBooted(true), []);
-  const replayBoot = useCallback(() => setBooted(false), []);
+  /** Replays the whole start-up, power screen included. */
+  const replayBoot = useCallback(() => {
+    setBooted(false);
+    setPowered(false);
+  }, []);
   const toggleEffects = useCallback(() => setEffects(!getEffects()), []);
   const toggleDevMode = useCallback(() => setDevMode((d) => !d), []);
 
   const value = useMemo<SystemState>(
     () => ({
+      powered,
+      powerOn,
       booted,
       completeBoot,
       replayBoot,
@@ -77,8 +97,12 @@ export function SystemProvider({ children }: { children: ReactNode }) {
       toggleDevMode,
       paletteOpen,
       setPaletteOpen,
+      archiveOpen,
+      setArchiveOpen,
     }),
     [
+      powered,
+      powerOn,
       booted,
       completeBoot,
       replayBoot,
@@ -88,6 +112,7 @@ export function SystemProvider({ children }: { children: ReactNode }) {
       devMode,
       toggleDevMode,
       paletteOpen,
+      archiveOpen,
     ],
   );
 

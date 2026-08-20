@@ -1,13 +1,21 @@
 import { Hero } from "@/components/hero/hero";
 import { About } from "@/components/about/about";
 import { Experience } from "@/components/experience/experience";
-import { Projects } from "@/components/projects/projects";
+import { CaseFiles } from "@/components/projects/case-files";
 import { Skills } from "@/components/skills/skills";
+import { Lab } from "@/components/lab/lab";
+import { GithubSystem } from "@/components/github/github-system";
 import { Terminal } from "@/components/terminal/terminal";
 import { Contact } from "@/components/contact/contact";
 import { Footer } from "@/components/footer/footer";
 
 /**
+ * NYXEN — the main dashboard.
+ *
+ * Reading order is deliberate: who → track record → the work → how it connects
+ * → proof it runs → the live feed → the shell → contact. A recruiter can stop
+ * after Case Files and have what they came for; a developer can keep going.
+ *
  * Incremental Static Regeneration.
  *
  * The page is prerendered and then rebuilt in the background at most once per
@@ -28,8 +36,10 @@ export default function Home() {
       <Hero />
       <About />
       <Experience />
-      <Projects />
+      <CaseFiles />
       <Skills />
+      <Lab />
+      <GithubSystem />
       <Terminal />
       <Contact />
       <Footer />

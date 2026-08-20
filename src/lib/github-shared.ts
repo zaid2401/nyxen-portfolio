@@ -131,20 +131,9 @@ export const categoryRules: CategoryRule[] = [
     ],
   },
   {
-    id: "aws",
-    label: "AWS",
-    topics: [
-      "aws",
-      "lambda",
-      "s3",
-      "ec2",
-      "dynamodb",
-      "cloud",
-      "serverless",
-      "terraform",
-      "docker",
-      "kubernetes",
-    ],
+    id: "cloud",
+    label: "Cloud",
+    topics: ["cloud", "serverless", "terraform", "docker", "kubernetes"],
   },
   {
     id: "web",

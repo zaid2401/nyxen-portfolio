@@ -51,6 +51,34 @@
   --animate-scan: scan 7s linear infinite;
   --animate-pulse-node: pulse-node 2.6s var(--ease-out-expo) infinite;
   --animate-sweep: sweep 2.2s var(--ease-out-expo) infinite;
+  /* Pipeline flow: a packet travelling along a connector in the Lab. */
+  --animate-flow: flow 1.4s linear infinite;
+  --animate-breathe: breathe 3.2s ease-in-out infinite;
+}
+
+@keyframes flow {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes caret {
@@ -156,6 +184,16 @@
     display: none;
   }
 
+  [data-powered="1"] #power-overlay {
+    display: none;
+  }
+
+  /* Until the system is powered on, the page behind the overlay must not be
+     scrollable — otherwise a trackpad flick scrolls content nobody can see. */
+  html:not([data-powered="1"]) body {
+    overflow: hidden;
+  }
+
   /* Respecting the OS setting is not optional. Every animation in this
      project either stops here or degrades to an instant state change. */
   @media (prefers-reduced-motion: reduce) {
@@ -255,6 +293,46 @@
 
 @utility text-balance-pretty {
   text-wrap: pretty;
+}
+
+/* Glass surface for the OS shell — the toolbar and the floating panels.
+   Distinct from `panel`: this one sits *over* content and needs the blur. */
+@utility glass {
+  background-color: color-mix(in oklab, var(--color-void) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--color-line);
+}
+
+/* CRT scanlines. Used on exactly two surfaces — the boot overlay and the
+   secret archive — because everywhere else it costs legibility for nothing. */
+@utility scanlines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 2px,
+    #ffffff06 2px 3px
+  );
+}
+
+/* Status LED. Colour comes from `currentColor`, so one utility covers every
+   state and the colour is decided at the call site. */
+@utility led {
+  position: relative;
+  display: inline-block;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background-color: currentColor;
+  box-shadow: 0 0 0 2px color-mix(in oklab, currentColor 18%, transparent);
+}
+
+/* Hides content from the OS shell's own chrome when recruiter mode trims the
+   interface. Kept as a utility so the rule lives in one place. */
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Content that must never widen the page (long repo names, URLs, output). */

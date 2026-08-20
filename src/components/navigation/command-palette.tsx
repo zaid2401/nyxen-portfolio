@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
   Mail,
   Power,
@@ -16,6 +17,7 @@ import {
   Search,
   CornerDownLeft,
   ArrowRight,
+  Zap,
 } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/brand-icons";
 import { siteConfig, githubUrl, isPlaceholder, sections } from "@/config/site";
@@ -26,7 +28,7 @@ import { cn } from "@/lib/utils";
 interface Command {
   id: string;
   label: string;
-  group: "Navigate" | "Links" | "Interface";
+  group: "Navigate" | "Links" | "Interface" | "System";
   icon: ReactNode;
   keywords?: string;
   hint?: string;
@@ -70,6 +72,7 @@ export function CommandPalette() {
  */
 function PalettePanel({ onClose }: { onClose: () => void }) {
   const { effects, toggleEffects, replayBoot } = useSystem();
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [index, setIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +92,21 @@ function PalettePanel({ onClose }: { onClose: () => void }) {
           scrollToSection(s.id);
         },
       }));
+
+    const system: Command[] = [
+      {
+        id: "recruiter",
+        label: "Open recruiter mode",
+        group: "System",
+        icon: <Zap aria-hidden="true" className="h-3.5 w-3.5" />,
+        keywords: "hire hiring cv resume summary",
+        hint: "/recruiter",
+        run: () => {
+          onClose();
+          router.push("/recruiter");
+        },
+      },
+    ];
 
     const links: Command[] = [];
     if (!isPlaceholder(siteConfig.githubUsername)) {
@@ -157,8 +175,8 @@ function PalettePanel({ onClose }: { onClose: () => void }) {
       },
     ];
 
-    return [...navigational, ...links, ...ui];
-  }, [onClose, effects, toggleEffects, replayBoot]);
+    return [...navigational, ...system, ...links, ...ui];
+  }, [onClose, effects, toggleEffects, replayBoot, router]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

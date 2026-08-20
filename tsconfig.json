@@ -6,6 +6,9 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    // scripts/lab-check.ts runs under plain Node, which resolves the
+    // real ".ts" path rather than a bundler-rewritten one.
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",

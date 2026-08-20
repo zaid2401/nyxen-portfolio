@@ -30,7 +30,7 @@ export function Contact() {
   return (
     <Section
       id="contact"
-      index="06"
+      index="08"
       title="Contact"
       kicker="Open to software development and data engineering roles, and happy to talk about either."
     >

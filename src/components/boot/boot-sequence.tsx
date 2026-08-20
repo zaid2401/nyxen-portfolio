@@ -33,8 +33,11 @@ const FADE_MS = 420;
 const BAR_CELLS = 22;
 
 export function BootSequence() {
-  const { booted, reducedMotion } = useSystem();
+  const { powered, booted, reducedMotion } = useSystem();
 
+  // Nothing runs before the power button is pressed — otherwise the sequence
+  // would play behind the power screen and be over before anyone saw it.
+  if (!powered) return null;
   if (booted) return null;
   if (reducedMotion) return <SkipBoot />;
   return <BootAnimation />;

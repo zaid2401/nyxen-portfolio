@@ -1,8 +1,12 @@
-# NYXEN — developer portfolio
+# NYXEN OS — developer portfolio
 
-A dark, terminal-flavoured portfolio for **Zaid** (Nyxen) — software and automation developer, moving toward software development and data engineering.
+A dark, terminal-flavoured portfolio for **Zaid Parkar** (Nyxen) — software and automation developer, moving toward software development and data engineering. The interface is framed as a small operating system: experience is a system log, projects are case files, technologies are a graph, and the automation work is runnable.
 
-The distinguishing feature is that the **Projects section maintains itself**. It reads the GitHub REST API at build time and on a revalidation window, so pushing a new public repository puts it on the site with no code change and no deploy.
+Two things distinguish it.
+
+**The GitHub section maintains itself.** It reads the GitHub REST API on the server and caches on a revalidation window, so pushing a new public repository puts it on the site with no code change and no deploy.
+
+**Nothing on it is invented.** Figures appear only where they were actually measured; work without a measured number is described without one. The Lab genuinely runs — paste a CSV and it really parses, validates and aggregates it, in your browser, with nothing uploaded.
 
 Built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4, Framer Motion and Lucide.
 
@@ -11,6 +15,7 @@ Built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4, Framer Motion a
 ## Contents
 
 - [Quick start](#quick-start)
+- [Editing your content](EDITING.md) — which file to touch for experience, case files, skills and the Lab
 - [Configure it as yours](#configure-it-as-yours)
 - [Environment variables](#environment-variables)
 - [How the GitHub integration works](#how-the-github-integration-works)
@@ -21,6 +26,24 @@ Built with Next.js 16 (App Router), TypeScript, Tailwind CSS v4, Framer Motion a
 - [Design and engineering notes](#design-and-engineering-notes)
 - [Accessibility](#accessibility)
 - [Easter eggs](#easter-eggs)
+
+---
+
+## What is on the page
+
+| Section | What it is |
+| --- | --- |
+| **System Core** | Identity, the discipline line, and telemetry bars reading real counts from the data files |
+| **About** | Identity read-out plus the longer answer |
+| **System Log** | Work and study as two separate streams; every date computed from a start/end pair |
+| **Case Files** | Each project as problem → approach → architecture → implementation → result |
+| **Skill DNA** | Technology graph; selecting a node lights its relationships, case files and repositories |
+| **Lab** | Three working tools — a CSV validation pipeline, a document field extractor and a quotation generator — all running in the browser on data you supply |
+| **GitHub System** | Live API feed, profile statistics, and a status panel whose lights are real checks |
+| **Shell** | A working terminal — the commands read the same data the page renders from |
+| **Contact** | Email, with a one-click copy |
+
+`/recruiter` is a separate, deliberately trimmed route: the whole profile on one page, with no OS chrome, no canvas and no boot sequence.
 
 ---
 
@@ -90,7 +113,7 @@ with overlapping roles counted once. See [`src/lib/duration.ts`](src/lib/duratio
 
 ## Environment variables
 
-Copy the example file and fill in what you need. Both variables are optional — the site builds and runs without either.
+Copy the example file and fill in what you need. Every variable is optional — the site builds and runs with none of them set.
 
 ```bash
 cp .env.example .env.local
@@ -104,24 +127,6 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SITE_URL` | No | Overrides `siteConfig.url` for absolute metadata URLs. |
 
 None of these are secrets in the browser: every one is read server-side only. `GITHUB_TOKEN` is never prefixed `NEXT_PUBLIC_`, never returned in an API payload, and lives in a module that client components cannot import (see [below](#the-serverclient-split)).
-
-### GitHub token
-
-Create a fine-grained token at <https://github.com/settings/tokens?type=beta> with **no account permissions** — read-only public access is enough. Do not grant repository write scopes.
-
-### Contact
-
-There is no contact form, on purpose. A form needs an email provider and a
-verified sending domain behind it to be anything more than decoration, and a
-form that quietly drops messages is worse than no form. The Contact section
-offers a `mailto:` with a pre-filled subject plus one-click copy — the message
-gets sent just as fast, and there is nothing to break, no key to rotate and no
-API route to secure.
-
-If you later own a domain and want a real form, add an email provider
-(Resend, Postmark, SES), a `POST /api/contact` route handler, and gate the form
-on the provider's credentials being present so it never renders without a
-working delivery path.
 
 ---
 
@@ -144,7 +149,7 @@ GitHub REST API
 
 **Auto-update.** `src/app/page.tsx` exports `revalidate = 3600`. The page is prerendered, and the first request after the window expires triggers a background regeneration that re-reads GitHub. Push `github.com/<you>/new-project` and it shows up on its own. Change the window in `siteConfig.revalidateSeconds` — and keep the literal in `page.tsx` in step, since Next requires that export to be a static value.
 
-**Filter categories are derived, not maintained.** `deriveCategories()` in [`src/lib/github-shared.ts`](src/lib/github-shared.ts) maps a repository's primary language and topics onto Python / Java / Kotlin / Automation / Data / AWS / Web / Other. Only categories with at least one repository are shown, with live counts. Tag a repo `rpa` or `aws` on GitHub and it files itself.
+**Filter categories are derived, not maintained.** `deriveCategories()` in [`src/lib/github-shared.ts`](src/lib/github-shared.ts) maps a repository's primary language and topics onto Python / Java / Kotlin / Automation / Data / Cloud / Web / Other. Only categories with at least one repository are shown, with live counts. Tag a repo `rpa` or `docker` on GitHub and it files itself.
 
 **Skills link to real repositories.** Each skill in `src/data/skills.ts` carries a `match` block of languages and topics; selecting a node lists the public repositories that actually match. No manual project-to-skill mapping exists.
 
@@ -174,7 +179,17 @@ npm run typecheck
 npm run format
 ```
 
+```bash
+npm test
+```
+
 `npm run start` serves a production build locally. `npm run format:check` and `npm run lint:fix` are also available.
+
+`npm test` runs `scripts/lab-check.ts` — 48 assertions against the three Lab
+engines (CSV pipeline, document extraction, quotation builder). There is no test
+framework and no extra dependency: Node strips the types itself, and a failure
+exits non-zero. The Lab claims to do real work rather than replay a script, and
+this is what makes that claim checkable.
 
 ---
 
@@ -184,19 +199,29 @@ npm run format
 src/
 ├── app/
 │   ├── layout.tsx              Fonts, metadata, JSON-LD, pre-hydration script
-│   ├── page.tsx                Section composition + ISR window
+│   ├── (os)/                   Route group: the OS shell
+│   │   ├── layout.tsx          Boot, system bar, dock, palette, overlays
+│   │   └── page.tsx            Section composition + ISR window
+│   ├── recruiter/page.tsx      Trimmed one-page hiring view (no OS chrome)
 │   ├── globals.css             Design tokens, base layer, custom utilities
 │   ├── icon.svg                Favicon
 │   ├── opengraph-image.tsx     Generated social card
 │   ├── twitter-image.tsx       Re-exports the OG card
 │   ├── sitemap.ts / robots.ts
 │   └── api/
-│       └── github/repos/       Retry endpoint for Projects
+│       ├── github/repos/       Retry endpoint for the repository grid
+│       └── status/             Re-check endpoint for the status panel
 ├── components/
 │   ├── boot/                   Boot sequence
-│   ├── navigation/             Header, mobile sheet, ⌘K palette
-│   ├── hero/                   Hero + canvas node field
-│   ├── about/ experience/ projects/ skills/
+│   ├── os/                     System bar, mobile dock, status panel, lazy overlays
+│   ├── navigation/             ⌘K command palette
+│   ├── hero/                   Hero, canvas node field, telemetry
+│   ├── about/ experience/      Identity panel · system log
+│   ├── projects/               Case files + the repository grid
+│   ├── skills/                 Skill DNA graph
+│   ├── lab/                    Working tools: pipeline, extractor, quotation
+│   ├── github/                 GitHub system + profile statistics
+│   ├── easter-eggs/            Secret archive (code-split)
 │   ├── terminal/               Shell + command registry
 │   ├── contact/ footer/
 │   ├── system/                 Provider, DOM-backed store, cursor, dev HUD
@@ -205,10 +230,12 @@ src/
 ├── lib/
 │   ├── github.ts               Server-only fetching (reads process.env)
 │   ├── github-shared.ts        Types + pure logic (safe for the client)
+│   ├── lab/                    Pure logic: CSV engine, extraction rules, pricing
+│   ├── status.ts               Server-only status checks, shared by page and route
 │   ├── duration.ts             Period parsing, durations, total experience
 │   ├── languages.ts utils.ts navigation.ts
 ├── config/site.ts              ← the only file you must edit
-└── data/                       experience · skills
+└── data/                       experience · skills · case-files · lab · knowledge
 ```
 
 ---
@@ -276,12 +303,15 @@ Do not add a Tailwind colour token named `base`, `sm`, `lg` and so on. In Tailwi
 
 ## Easter eggs
 
-Four, all reversible and none of them in the way:
+Five, all reversible and none of them in the way:
 
 1. **Konami code** (↑↑↓↓←→←→ B A) — opens a small live telemetry read-out. Escape closes it.
 2. **Five clicks on the NYXEN emblem** — reboots the interface and replays the boot sequence.
 3. **`sudo` in the terminal, three times** — you are not in the sudoers file, but persistence is rewarded.
-4. **`nyxen` in the terminal** — prints the banner.
+4. **`sudo nyxen --secret`** — opens the hidden archive: the build decisions behind the site.
+5. **`nyxen` in the terminal** — prints the banner.
+
+The archive is dynamically imported, so a visitor who never finds it never downloads it.
 
 ---
 

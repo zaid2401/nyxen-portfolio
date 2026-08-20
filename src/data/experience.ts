@@ -133,7 +133,8 @@ export const identityRows: { key: string; value: string }[] = [
   { key: "EXPERIENCE", value: formatTotalExperience(work) },
   { key: "EDUCATION", value: "BSc Computer Science" },
   { key: "CURRENTLY", value: "MBA — Data Science" },
-  { key: "FOCUS", value: "Software development / Data engineering" },
+  { key: "FOCUS", value: "Software / Automation developer" },
+  { key: "LEARNING", value: "Data engineering — data engineer enthusiast" },
   { key: "LOCATION", value: "Dubai, UAE" },
   { key: "STATUS", value: "Open to opportunities" },
 ];
