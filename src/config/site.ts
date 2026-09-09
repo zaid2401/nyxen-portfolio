@@ -98,7 +98,7 @@ export const siteConfig = {
    * clearly-labelled unavailable state rather than linking to a 404. Nothing
    * fabricates résumé content in its place.
    */
-  resumeUrl: "",
+  resumeUrl: "/Zaid_Parkar_Resume_.pdf",
 
   /* ── Meta ───────────────────────────────────────────────────────────────── */
   keywords: [
